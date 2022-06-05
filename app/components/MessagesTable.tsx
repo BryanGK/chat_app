@@ -1,8 +1,4 @@
-interface Message {
-  id: string;
-  message: string;
-  author: string;
-}
+import { Message } from '../components';
 
 interface MessagesList {
   messages: Message[];

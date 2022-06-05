@@ -1,13 +1,10 @@
-interface User {
-  id: string;
-  username: string;
-}
+import { User } from '../components';
 
-interface UsersList {
+interface Props {
   users: User[];
 }
 
-const UsersTable: React.FC<UsersList> = ({ users }) => {
+const UsersTable: React.FC<Props> = ({ users }) => {
   return (
     <div className="users-table">
       {users.map((user) => {
