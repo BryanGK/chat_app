@@ -1,7 +1,7 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
-import { useState } from "react";
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import Image from 'next/image';
+import { useState } from 'react';
 import { UsersTable, MessagesTable, MessageInput } from '../components';
 
 interface User {
@@ -16,24 +16,28 @@ interface Message {
 }
 
 const Home: NextPage = () => {
-    const [users, setUsers] = useState<User[]>([
+  const [users, setUsers] = useState<User[]>([
     { id: '1234', username: 'Bryan' },
-    { id: '2345', username: 'Andy' },
   ]);
-  const [messages, setMessages] = useState<Message[]>([
-    { id: '1', message: 'hello world', author: 'Bryan' },
-    { id: '2', message: 'hey man!', author: 'Andy' },
-    { id: '3', message: 'doing great work!', author: 'Andy' },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messageInputValue, setMessageInputValue] = useState<string>('');
 
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log("onClick");
+    const newMessage = [...messages];
+    newMessage.push({
+      id: (messages.length + 1).toString(),
+      message: messageInputValue,
+      author: users[0].username,
+    });
+    setMessages(newMessage);
+    setMessageInputValue('');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('Event: ', e.target.value);
-  }
+    setMessageInputValue(e.target.value);
+  };
+
   return (
     <div>
       <Head>
@@ -49,7 +53,11 @@ const Home: NextPage = () => {
               <UsersTable users={users} />
               <MessagesTable messages={messages} />
             </div>
-            <MessageInput onClick={onClick} onChange={ handleChange}/>
+            <MessageInput
+              onClick={onClick}
+              onChange={handleChange}
+              messageInputValue={messageInputValue}
+            />
           </div>
         </div>
       </main>

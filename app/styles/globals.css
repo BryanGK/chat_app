@@ -22,7 +22,7 @@ a {
 }
 
 .msg-main {
-  height: 768px;
+  height: 568px;
   width: 80%;
   max-width: 1024px;
   margin: auto;
@@ -43,14 +43,14 @@ a {
 }
 
 .users-table {
-  height: 700px;
+  height: 500px;
   width: 30%;
   border: 1px solid red;
   margin: 5px;
 }
 
 .msg-table {
-  height: 700px;
+  height: 500px;
   width: 70%;
   border: 1px solid blue;
   margin: 5px;
