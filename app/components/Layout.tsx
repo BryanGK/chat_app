@@ -1,6 +1,6 @@
 import { Navbar, MessagesTable, UsersTable, MessageInput } from '../components';
 import { Button, Input } from 'reactstrap';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 interface User {
   id: string;
@@ -24,6 +24,15 @@ const Layout: React.FC = () => {
     { id: '3', message: 'doing great work!', author: 'Andy' },
   ]);
 
+  const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    console.log("onClick");
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Event: ', e.target.value);
+  }
+
   return (
     <div>
       <Navbar></Navbar>
@@ -34,7 +43,7 @@ const Layout: React.FC = () => {
             <UsersTable users={users} />
             <MessagesTable messages={messages} />
           </div>
-          <MessageInput />
+          <MessageInput onClick={onClick} onChange={ handleChange}/>
         </div>
       </div>
     </div>
