@@ -1,8 +1,8 @@
-import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { UserEntity } from './entities/UserEntity';
+import { UserEntity } from './entity/UserEntity';
+import { MessageEntity } from './entity/MessageEntity';
 
-const AppDataSource = new DataSource({
+export const AppDataSource = new DataSource({
   type: 'postgres',
   host: 'localhost',
   port: 5432,
@@ -11,9 +11,7 @@ const AppDataSource = new DataSource({
   database: 'chat_app',
   synchronize: true,
   logging: true,
-  entities: [UserEntity],
+  entities: [UserEntity, MessageEntity],
   subscribers: [],
   migrations: [],
 });
-
-export default AppDataSource;
