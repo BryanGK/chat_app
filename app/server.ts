@@ -3,10 +3,6 @@ import express from 'express';
 import { Request, Response } from 'express';
 import next from 'next';
 import http from 'http';
-import { Message } from './components';
-import { AppDataSource } from './database/data-source';
-import { UserEntity } from './database/entity/UserEntity';
-import { MessageEntity } from './database/entity/MessageEntity';
 import apiRouter from './routes';
 
 const dev = process.env.NODE_ENV !== 'production';
