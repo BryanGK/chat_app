@@ -7,6 +7,7 @@ import { Message } from './components';
 import { AppDataSource } from './database/data-source';
 import { UserEntity } from './database/entity/UserEntity';
 import { MessageEntity } from './database/entity/MessageEntity';
+import apiRouter from './routes';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOST;
@@ -20,47 +21,16 @@ app.prepare().then(() => {
 
   server.use(express.json());
 
-  server.get('/api/messages', async (req: Request, res: Response) => {
-    AppDataSource.initialize()
-      .then(async () => {
-        const messagesRepository = AppDataSource.getRepository(MessageEntity);
-        const allMessages = await messagesRepository.find();
-        res.send(allMessages);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        AppDataSource.destroy();
-      });
-  });
+  server.use('/api', apiRouter);
 
-  server.post('/api/messages', (req: Request, res: Response) => {
-    AppDataSource.initialize()
-      .then(async () => {
-        const message = new MessageEntity();
-        message.message = req.body.message;
-        message.author = req.body.author;
-
-        await AppDataSource.manager.save(message);
-        res.send(message);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        AppDataSource.destroy();
-      });
-  });
-
-  server.all('*', async (req, res) => handle(req, res));
+  server.all('*', async (req: Request, res: Response) => handle(req, res));
 
   http
     .createServer(server)
     .listen(port, () => {
-      console.log(`> Server ready on http://localhost:${port}`);
+      console.log(`\n> Server ready on http://localhost:${port}\n`);
     })
-    .on('error', (err) => {
-      console.log(err);
+    .on('error', (error: Error) => {
+      console.error('\nError starting the server: ', error, '\n');
     });
 });
