@@ -11,6 +11,7 @@ import {
   User,
   Message,
 } from '../components';
+import { io } from 'socket.io-client';
 
 const Home: NextPage = () => {
   const [users, setUsers] = useState<User[]>([{ id: 1234, username: 'Bryan' }]);
@@ -34,13 +35,25 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    const fetchMessages = () => {
-      fetch(`http://localhost:3000/api/messages`)
-        .then((response) => response.json())
-        .then((data) => console.log(data));
+    const connectSocket = () => {
+      const socket = io();
+      socket.on('connect', () => {
+        console.log('Connected with: ', socket.id);
+      });
     };
+    const fetchMessages = () => {
+      fetch(`http://localhost:3000/api/messages`, {
+        method: 'GET',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const newMessage: Array<Message> = data;
+          setMessages(newMessage);
+        });
+    };
+    connectSocket();
     fetchMessages();
-  }, [MessagesTable]);
+  }, []);
 
   return (
     <div>

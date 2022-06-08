@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import express from 'express';
 import { Request, Response } from 'express';
+import { Server } from 'socket.io';
 import next from 'next';
-import http from 'http';
+import { createServer } from 'http';
+import cors from 'cors';
 import apiRouter from './routes';
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -17,12 +19,21 @@ app.prepare().then(() => {
 
   server.use(express.json());
 
+  server.use(cors());
+
   server.use('/api', apiRouter);
 
   server.all('*', async (req: Request, res: Response) => handle(req, res));
 
-  http
-    .createServer(server)
+  const httpServer = createServer(server);
+
+  const io = new Server(httpServer);
+
+  io.on('connect', (socket) => {
+    console.log(socket.id);
+  });
+
+  httpServer
     .listen(port, () => {
       console.log(`\n> Server ready on http://localhost:${port}\n`);
     })
