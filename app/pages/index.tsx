@@ -10,8 +10,10 @@ import {
   MessageInput,
   User,
   Message,
+  ServerToClientEvents,
+  ClientToServerEvents,
 } from '../components';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 const Home: NextPage = () => {
   const [users, setUsers] = useState<User[]>([{ id: 1234, username: 'Bryan' }]);
@@ -36,7 +38,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const connectSocket = () => {
-      const socket = io();
+      const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io();
       socket.on('connect', () => {
         console.log('Connected with: ', socket.id);
       });

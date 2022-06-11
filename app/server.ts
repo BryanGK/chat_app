@@ -6,6 +6,12 @@ import next from 'next';
 import { createServer } from 'http';
 import cors from 'cors';
 import apiRouter from './routes';
+import {
+  ClientToServerEvents,
+  InterServerEvents,
+  ServerToClientEvents,
+  SocketData,
+} from './components';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOST;
@@ -27,7 +33,12 @@ app.prepare().then(() => {
 
   const httpServer = createServer(server);
 
-  const io = new Server(httpServer);
+  const io = new Server<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SocketData
+  >(httpServer);
 
   io.on('connect', (socket) => {
     console.log(socket.id);
