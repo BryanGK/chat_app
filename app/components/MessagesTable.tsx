@@ -10,7 +10,7 @@ const MessagesTable: React.FC<MessagesList> = ({ messages }) => {
       {messages.map((msg) => {
         return (
           <div key={msg.id}>
-            {msg.message} {msg.author}
+            {msg.message} - {msg.author}
           </div>
         );
       })}
