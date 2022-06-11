@@ -1,60 +1,40 @@
 import express from 'express';
-import { AppDataSource } from '../database/data-source';
+import AppDataSource from '../database/data-source';
 import { Request, Response } from 'express';
 import { MessageEntity } from '../database/entity/MessageEntity';
 import { UserEntity } from '../database/entity/UserEntity';
+import { getData, postMessage } from '../services/databaseService';
 
 const apiRouter = express();
 
-apiRouter.get('/messages', (req: Request, res: Response) => {
-  AppDataSource.initialize()
-    .then(async () => {
-      const messagesRepository = AppDataSource.getRepository(MessageEntity);
-      const allMessages = await messagesRepository.find();
-      res.send(allMessages);
-    })
-    .catch((error: Error) => {
-      console.error('\nError getting your messages:', error, '\n');
-    })
-    .finally(() => {
-      AppDataSource.destroy();
-    });
+apiRouter.get('/messages', async (req: Request, res: Response) => {
+  try {
+    const messages = await getData(MessageEntity);
+    res.send(messages);
+  } catch (error) {
+    res.send(`Error getting messages: ${error}`);
+  }
 });
 
-apiRouter.post('/messages', (req: Request, res: Response) => {
-  AppDataSource.initialize()
-    .then(async () => {
-      const message = new MessageEntity();
-      message.message = req.body.message;
-      message.author = req.body.author;
-
-      await AppDataSource.manager.save(message);
-      res.send(message);
-    })
-    .catch((error: Error) => {
-      console.error('Error saving your message: ', error, '\n');
-    })
-    .finally(() => {
-      AppDataSource.destroy();
-    });
+apiRouter.post('/messages', async (req: Request, res: Response) => {
+  try {
+    const returnedMessage = await postMessage(req.body);
+    res.send(returnedMessage);
+  } catch (error) {
+    console.error(`Error saving message: ${error}`);
+  }
 });
 
-apiRouter.get('/users', (req: Request, res: Response) => {
-  AppDataSource.initialize()
-    .then(async () => {
-      const usersRepository = AppDataSource.getRepository(UserEntity);
-      const allUsers = await usersRepository.find();
-      res.send(allUsers);
-    })
-    .catch((error: Error) => {
-      console.error('Error getting users: ', error, '\n');
-    })
-    .finally(() => {
-      AppDataSource.destroy();
-    });
+apiRouter.get('/users', async (req: Request, res: Response) => {
+  try {
+    const messages = await getData(UserEntity);
+    res.send(messages);
+  } catch (error) {
+    res.send(`Error getting messages: ${error}`);
+  }
 });
 
-apiRouter.post('/user', (req: Request, res: Response) => {
+apiRouter.post('/users', (req: Request, res: Response) => {
   AppDataSource.initialize()
     .then(async () => {
       const user = new UserEntity();
@@ -71,7 +51,7 @@ apiRouter.post('/user', (req: Request, res: Response) => {
     });
 });
 
-apiRouter.get('/user/:id', (req: Request, res: Response) => {
+apiRouter.get('/users/:id', (req: Request, res: Response) => {
   AppDataSource.initialize()
     .then(async () => {
       const usersRepository = AppDataSource.getRepository(UserEntity);
