@@ -10,12 +10,13 @@ import {
   ClientToServerEvents,
 } from '../components';
 import { Socket } from 'socket.io-client';
+import { MessageEntity } from '../database/entity/MessageEntity';
 
 interface Props {
-  socket: Socket<ServerToClientEvents, ClientToServerEvents>
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
-const Home: React.FC<Props> = ({socket}) => {
+const Home: React.FC<Props> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([{ id: 1234, username: 'Bryan' }]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInputValue, setMessageInputValue] = useState<string>('');
@@ -35,26 +36,29 @@ const Home: React.FC<Props> = ({socket}) => {
       body: JSON.stringify(messageData),
     })
       .then(() => {
-        console.log(`message sent: ${messageData}`);
         socket.emit('savedMessage', messageData);
       })
       .catch((error) => {
-        console.error('Error sending message: ' + error);
+        console.error('Error sending message: ', error);
       });
     setMessageInputValue('');
+  };
+
+  const handleMessage = (msg: MessageEntity) => {
+    setMessages((prevState) => [
+      ...prevState,
+      {
+        message: msg.message,
+        author: msg.author,
+        id: prevState.length + 1,
+      },
+    ]);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInputValue(e.target.value);
   };
-
   useEffect(() => {
-    const connectSocket = () => {
-      socket.on('connect', () => {
-        socket.on('database', () => {});
-        console.log('Connected with: ', socket.id);
-      });
-    };
     const fetchMessages = () => {
       fetch(`http://localhost:3000/api/messages`, {
         method: 'GET',
@@ -63,10 +67,24 @@ const Home: React.FC<Props> = ({socket}) => {
         .then((data) => {
           const newMessage: Array<Message> = data;
           setMessages(newMessage);
+        })
+        .catch((error) => {
+          console.error('Error fetching messages: ', error);
         });
     };
-    connectSocket();
     fetchMessages();
+
+    const connectSocket = () => {
+      socket.on('connect', () => {
+        console.log('Connected with: ', socket.id);
+      });
+    };
+
+    socket.on('returnMessage', (msg) => {
+      handleMessage(msg);
+    });
+
+    connectSocket();
   }, []);
 
   return (

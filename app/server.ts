@@ -43,8 +43,9 @@ app.prepare().then(() => {
   io.on('connect', (socket) => {
     console.log(socket.id);
     socket.on('savedMessage', (msg) => {
-      console.log('This is the message: ', msg);
-    })
+      console.log('returnMessage');
+      io.emit('returnMessage', msg);
+    });
   });
 
   httpServer

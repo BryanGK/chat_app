@@ -1,4 +1,4 @@
-import { MessageEntity } from "../database/entity/MessageEntity";
+import { MessageEntity } from '../database/entity/MessageEntity';
 
 export interface User {
   id: number;
@@ -15,7 +15,7 @@ export interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
-  database: () => void;
+  returnMessage: (msg: MessageEntity) => void;
 }
 
 export interface ClientToServerEvents {
