@@ -4,7 +4,7 @@ import { Message } from '../../components';
 @Entity()
 export class MessageEntity implements Message {
   @PrimaryGeneratedColumn('increment')
-  id!: number;
+  id: number | null | undefined;
 
   @Column('varchar', { length: 255 })
   message!: string;

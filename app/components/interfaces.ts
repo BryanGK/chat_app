@@ -1,10 +1,12 @@
+import { MessageEntity } from "../database/entity/MessageEntity";
+
 export interface User {
   id: number;
   username: string;
 }
 
 export interface Message {
-  id: number;
+  id: number | null | undefined;
   message: string;
   author: string;
 }
@@ -13,10 +15,12 @@ export interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
+  database: () => void;
 }
 
 export interface ClientToServerEvents {
   hello: () => void;
+  savedMessage: (msg: MessageEntity) => void;
 }
 
 export interface InterServerEvents {
