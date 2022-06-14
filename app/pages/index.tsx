@@ -1,8 +1,4 @@
-import { response } from 'express';
-import { data } from 'jquery';
-import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import {
   UsersTable,
@@ -13,36 +9,56 @@ import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../components';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
+import { MessageEntity } from '../database/entity/MessageEntity';
 
-const Home: NextPage = () => {
+interface Props {
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+}
+
+const Home: React.FC<Props> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([{ id: 1234, username: 'Bryan' }]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInputValue, setMessageInputValue] = useState<string>('');
 
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const newMessage = [...messages];
-    newMessage.push({
-      id: messages.length + 1,
+    const messageData: Message = {
       message: messageInputValue,
       author: users[0].username,
-    });
-    setMessages(newMessage);
+      id: undefined,
+    };
+    fetch(`http://localhost:3000/api/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(messageData),
+    })
+      .then(() => {
+        socket.emit('savedMessage', messageData);
+      })
+      .catch((error) => {
+        console.error('Error sending message: ', error);
+      });
     setMessageInputValue('');
+  };
+
+  const handleMessage = (msg: MessageEntity) => {
+    setMessages((prevState) => [
+      ...prevState,
+      {
+        message: msg.message,
+        author: msg.author,
+        id: prevState.length + 1,
+      },
+    ]);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInputValue(e.target.value);
   };
-
   useEffect(() => {
-    const connectSocket = () => {
-      const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io();
-      socket.on('connect', () => {
-        console.log('Connected with: ', socket.id);
-      });
-    };
     const fetchMessages = () => {
       fetch(`http://localhost:3000/api/messages`, {
         method: 'GET',
@@ -51,10 +67,24 @@ const Home: NextPage = () => {
         .then((data) => {
           const newMessage: Array<Message> = data;
           setMessages(newMessage);
+        })
+        .catch((error) => {
+          console.error('Error fetching messages: ', error);
         });
     };
-    connectSocket();
     fetchMessages();
+
+    const connectSocket = () => {
+      socket.on('connect', () => {
+        console.log('Connected with: ', socket.id);
+      });
+    };
+
+    socket.on('returnMessage', (msg) => {
+      handleMessage(msg);
+    });
+
+    connectSocket();
   }, []);
 
   return (
