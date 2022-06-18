@@ -2,6 +2,7 @@ import AppDataSource from '../database/data-source';
 import { EntityTarget } from 'typeorm';
 import { MessageEntity } from '../database/entity/MessageEntity';
 import { UserEntity } from '../database/entity/UserEntity';
+import * as bcrypt from 'bcrypt';
 
 export const getData = async (entity: EntityTarget<unknown>) => {
   const messagesRepository = AppDataSource.getRepository(entity);
@@ -25,5 +26,6 @@ export const postMessage = async (input: MessageEntity) => {
 export const postUser = async (input: UserEntity) => {
   const user = new UserEntity();
   user.username = input.username;
+  user.password = await bcrypt.hash(input.password, 10);
   return await AppDataSource.manager.save(user);
 };
