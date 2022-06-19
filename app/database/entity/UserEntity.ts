@@ -4,7 +4,7 @@ import { User } from '../../components';
 @Entity()
 export class UserEntity implements User {
   @PrimaryGeneratedColumn('increment')
-  id!: number;
+  id: number | null | undefined;
 
   @Column('varchar', { length: 100 })
   username!: string;
