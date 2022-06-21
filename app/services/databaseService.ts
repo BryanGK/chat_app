@@ -3,6 +3,9 @@ import { EntityTarget } from 'typeorm';
 import { MessageEntity } from '../database/entity/MessageEntity';
 import { UserEntity } from '../database/entity/UserEntity';
 import * as bcrypt from 'bcrypt';
+import { User } from '../components';
+import jwt from 'jsonwebtoken';
+import authorizeUser from './authService';
 
 export const getData = async (entity: EntityTarget<unknown>) => {
   const messagesRepository = AppDataSource.getRepository(entity);
@@ -28,4 +31,15 @@ export const postUser = async (input: UserEntity) => {
   user.username = input.username;
   user.password = await bcrypt.hash(input.password, 10);
   return await AppDataSource.manager.save(user);
+};
+
+export const login = async (input: User) => {
+  const usersRepository = AppDataSource.getRepository(UserEntity);
+  const user = await usersRepository.findOneBy({
+    username: input.username,
+  });
+  if (!user) throw new Error('User not found');
+  const accessToken = await authorizeUser(input, user);
+  console.log('accesstoken login fn: ', accessToken);
+  return accessToken;
 };
