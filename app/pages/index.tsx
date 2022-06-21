@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   UsersTable,
   MessagesTable,
@@ -11,17 +11,24 @@ import {
 } from '../components';
 import { Socket } from 'socket.io-client';
 import { MessageEntity } from '../database/entity/MessageEntity';
+import LoginModal from '../components/LoginModal';
+import { UserEntity } from '../database/entity/UserEntity';
 
 interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
 const Home: React.FC<Props> = ({ socket }) => {
-  const [users, setUsers] = useState<User[]>([{ id: 1234, username: 'Bryan' }]);
+  const [users, setUsers] = useState<User[]>([
+    { id: 1234, username: 'Bryan', password: '' },
+  ]);
+  const [userInputValue, setUserInputValue] = useState<string>('');
+  const [passwordInputValue, setPasswordInputValue] = useState<string>('');
+  const [createUserState, setCreateUserState] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInputValue, setMessageInputValue] = useState<string>('');
 
-  const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const postMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const messageData: Message = {
       message: messageInputValue,
@@ -32,6 +39,8 @@ const Home: React.FC<Props> = ({ socket }) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        authorization:
+          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJCcnlhbiIsInBhc3N3b3JkIjoiJDJiJDEwJENodDFuTkNJTTVrR1o0eW9ad0s4RHVydEo5LzdTSXRURGFHYy9JNUlQWUV0eHVYT09kZ04uIn0.cOq9YMgCC8PMmS5bnbOSZ-z7RIgG3_VS7t1bMXBahPk',
       },
       body: JSON.stringify(messageData),
     })
@@ -44,6 +53,58 @@ const Home: React.FC<Props> = ({ socket }) => {
     setMessageInputValue('');
   };
 
+  const createUser = async () => {
+    const user: User = {
+      id: undefined,
+      username: userInputValue,
+      password: passwordInputValue,
+    };
+    if (createUserState) {
+      fetch(`http://localhost:3000/api/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(user),
+      })
+        .then(async (response) => {
+          const data = await response.json();
+          console.log(data);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    }
+  };
+
+  const login = () => {
+    const user: User = {
+      id: undefined,
+      username: userInputValue,
+      password: passwordInputValue,
+    };
+    fetch(`http://localhost:3000/api/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(user),
+    })
+      .then(async (response) => {
+        if (response.status !== 200) {
+          console.log(response.statusText);
+          return response.statusText;
+        }
+        const data = await response.json();
+        console.log('JWT', data);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
+
+  const toggleCreateUserState = () => setCreateUserState(!createUserState);
+
   const handleMessage = (msg: MessageEntity) => {
     setMessages((prevState) => [
       ...prevState,
@@ -55,16 +116,32 @@ const Home: React.FC<Props> = ({ socket }) => {
     ]);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInputValue(e.target.value);
   };
+
+  const handleUserInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserInputValue(e.target.value);
+  };
+
+  const handlePasswordInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setPasswordInputValue(e.target.value);
+  };
+
   useEffect(() => {
     const fetchMessages = () => {
       fetch(`http://localhost:3000/api/messages`, {
         method: 'GET',
+        headers: {
+          authorization:
+            'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJCcnlhbiIsInBhc3N3b3JkIjoiJDJiJDEwJENodDFuTkNJTTVrR1o0eW9ad0s4RHVydEo5LzdTSXRURGFHYy9JNUlQWUV0eHVYT09kZ04uIn0.cOq9YMgCC8PMmS5bnbOSZ-z7RIgG3_VS7t1bMXBahPk',
+        },
       })
         .then((response) => response.json())
         .then((data) => {
+          console.log(data);
           const newMessage: Array<Message> = data;
           setMessages(newMessage);
         })
@@ -97,14 +174,22 @@ const Home: React.FC<Props> = ({ socket }) => {
       <main>
         <div className="main">
           <h1>Chat App</h1>
+          <LoginModal
+            toggleCreateUserState={toggleCreateUserState}
+            createUserState={createUserState}
+            login={login}
+            createUser={createUser}
+            handleUserInputChange={handleUserInputChange}
+            handlePasswordInputChange={handlePasswordInputChange}
+          />
           <div className="msg-main">
             <div className="display">
               <UsersTable users={users} />
               <MessagesTable messages={messages} />
             </div>
             <MessageInput
-              onClick={onClick}
-              onChange={handleChange}
+              postMessage={postMessage}
+              handleMessageChange={handleMessageChange}
               messageInputValue={messageInputValue}
             />
           </div>

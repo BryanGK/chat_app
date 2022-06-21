@@ -1,8 +1,9 @@
 import { MessageEntity } from '../database/entity/MessageEntity';
 
 export interface User {
-  id: number;
+  id: number | null | undefined;
   username: string;
+  password: string;
 }
 
 export interface Message {

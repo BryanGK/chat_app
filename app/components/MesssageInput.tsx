@@ -1,20 +1,24 @@
 import { Button, Input } from 'reactstrap';
 
 interface Props {
-  onClick(e: React.MouseEvent<HTMLButtonElement>): void;
-  onChange(e: React.ChangeEvent<HTMLInputElement>): void;
+  postMessage(e: React.MouseEvent<HTMLButtonElement>): void;
+  handleMessageChange(e: React.ChangeEvent<HTMLInputElement>): void;
   messageInputValue: string;
 }
 
-const MessageInput = ({ onClick, onChange, messageInputValue }: Props) => {
+const MessageInput = ({
+  postMessage,
+  handleMessageChange,
+  messageInputValue,
+}: Props) => {
   return (
     <div className="msg-form">
       <Input
         className="form-input"
-        onChange={onChange}
+        onChange={handleMessageChange}
         value={messageInputValue}
       />
-      <Button type="submit" color="primary" onClick={onClick}>
+      <Button type="submit" color="primary" onClick={postMessage}>
         Send Message
       </Button>
     </div>
