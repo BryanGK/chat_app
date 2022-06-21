@@ -39,6 +39,8 @@ const Home: React.FC<Props> = ({ socket }) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        authorization:
+          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJCcnlhbiIsInBhc3N3b3JkIjoiJDJiJDEwJENodDFuTkNJTTVrR1o0eW9ad0s4RHVydEo5LzdTSXRURGFHYy9JNUlQWUV0eHVYT09kZ04uIn0.cOq9YMgCC8PMmS5bnbOSZ-z7RIgG3_VS7t1bMXBahPk',
       },
       body: JSON.stringify(messageData),
     })
@@ -50,6 +52,7 @@ const Home: React.FC<Props> = ({ socket }) => {
       });
     setMessageInputValue('');
   };
+
   const createUser = async () => {
     const user: User = {
       id: undefined,
@@ -64,13 +67,40 @@ const Home: React.FC<Props> = ({ socket }) => {
         },
         body: JSON.stringify(user),
       })
-        .then((data) => {
+        .then(async (response) => {
+          const data = await response.json();
           console.log(data);
         })
         .catch((e) => {
           console.error(e);
         });
     }
+  };
+
+  const login = () => {
+    const user: User = {
+      id: undefined,
+      username: userInputValue,
+      password: passwordInputValue,
+    };
+    fetch(`http://localhost:3000/api/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(user),
+    })
+      .then(async (response) => {
+        if (response.status !== 200) {
+          console.log(response.statusText);
+          return response.statusText;
+        }
+        const data = await response.json();
+        console.log('JWT', data);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
   };
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
@@ -104,6 +134,10 @@ const Home: React.FC<Props> = ({ socket }) => {
     const fetchMessages = () => {
       fetch(`http://localhost:3000/api/messages`, {
         method: 'GET',
+        headers: {
+          authorization:
+            'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJCcnlhbiIsInBhc3N3b3JkIjoiJDJiJDEwJENodDFuTkNJTTVrR1o0eW9ad0s4RHVydEo5LzdTSXRURGFHYy9JNUlQWUV0eHVYT09kZ04uIn0.cOq9YMgCC8PMmS5bnbOSZ-z7RIgG3_VS7t1bMXBahPk',
+        },
       })
         .then((response) => response.json())
         .then((data) => {
@@ -143,6 +177,7 @@ const Home: React.FC<Props> = ({ socket }) => {
           <LoginModal
             toggleCreateUserState={toggleCreateUserState}
             createUserState={createUserState}
+            login={login}
             createUser={createUser}
             handleUserInputChange={handleUserInputChange}
             handlePasswordInputChange={handlePasswordInputChange}

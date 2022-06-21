@@ -17,6 +17,7 @@ interface Props {
   handleUserInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handlePasswordInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   createUser: () => void;
+  login: () => void;
   createUserState: boolean;
 }
 
@@ -25,6 +26,7 @@ const LoginModal = ({
   handleUserInputChange,
   handlePasswordInputChange,
   createUser,
+  login,
   createUserState,
 }: Props) => {
   const [modal, setModal] = useState(false);
@@ -70,7 +72,10 @@ const LoginModal = ({
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={createUser}>
+          <Button
+            color="primary"
+            onClick={createUserState ? createUser : login}
+          >
             {createUserState ? 'Create user' : 'Login'}
           </Button>{' '}
           <Button onClick={toggle}>Cancel</Button>
