@@ -27,15 +27,19 @@ apiRouter.get(
   }
 );
 
-apiRouter.post('/messages', async (req: Request, res: Response) => {
-  try {
-    const message = await postMessage(req.body);
-    res.send(message);
-  } catch (error) {
-    res.sendStatus(500).send(`Error getting messages: ${error}`);
-    console.error(`Error saving message: ${error}`);
+apiRouter.post(
+  '/messages',
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    try {
+      const message = await postMessage(req.body);
+      res.send(message);
+    } catch (error) {
+      res.sendStatus(500).send(`Error getting messages: ${error}`);
+      console.error(`Error saving message: ${error}`);
+    }
   }
-});
+);
 
 apiRouter.get('/users', async (req: Request, res: Response) => {
   try {
@@ -69,8 +73,8 @@ apiRouter.get('/users/:id', async (req: Request, res: Response) => {
 
 apiRouter.post('/login', (req: Request, res: Response) => {
   login(req.body)
-    .then((accessToken) => {
-      res.send(JSON.stringify(accessToken));
+    .then((authorizedUser) => {
+      res.send(JSON.stringify(authorizedUser));
     })
     .catch((error) => {
       if (error.message.startsWith('User')) res.status(404).send(error.message);

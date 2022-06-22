@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   UsersTable,
   MessagesTable,
@@ -19,9 +19,7 @@ interface Props {
 }
 
 const Home: React.FC<Props> = ({ socket }) => {
-  const [users, setUsers] = useState<User[]>([
-    { id: 1234, username: 'Bryan', password: '' },
-  ]);
+  const [user, setUser] = useState<User>();
   const [userInputValue, setUserInputValue] = useState<string>('');
   const [passwordInputValue, setPasswordInputValue] = useState<string>('');
   const [createUserState, setCreateUserState] = useState(false);
@@ -29,18 +27,18 @@ const Home: React.FC<Props> = ({ socket }) => {
   const [messageInputValue, setMessageInputValue] = useState<string>('');
 
   const postMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!user) return;
     e.preventDefault();
     const messageData: Message = {
       message: messageInputValue,
-      author: users[0].username,
+      author: user.username,
       id: undefined,
     };
     fetch(`http://localhost:3000/api/messages`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        authorization:
-          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJCcnlhbiIsInBhc3N3b3JkIjoiJDJiJDEwJENodDFuTkNJTTVrR1o0eW9ad0s4RHVydEo5LzdTSXRURGFHYy9JNUlQWUV0eHVYT09kZ04uIn0.cOq9YMgCC8PMmS5bnbOSZ-z7RIgG3_VS7t1bMXBahPk',
+        authorization: `Bearer ${user.authToken}`,
       },
       body: JSON.stringify(messageData),
     })
@@ -96,12 +94,25 @@ const Home: React.FC<Props> = ({ socket }) => {
           return response.statusText;
         }
         const data = await response.json();
-        console.log('JWT', data);
+
+        setUser({
+          id: data.id,
+          username: data.username,
+          password: data.password,
+          authToken: data.authToken,
+        });
       })
       .catch((e) => {
         console.error(e);
       });
   };
+
+  useEffect(() => {
+    if (user?.authToken) {
+      console.log('FetchMessages after setUser');
+      fetchMessages();
+    }
+  }, [user]);
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
 
@@ -130,26 +141,30 @@ const Home: React.FC<Props> = ({ socket }) => {
     setPasswordInputValue(e.target.value);
   };
 
-  useEffect(() => {
-    const fetchMessages = () => {
-      fetch(`http://localhost:3000/api/messages`, {
-        method: 'GET',
-        headers: {
-          authorization:
-            'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJCcnlhbiIsInBhc3N3b3JkIjoiJDJiJDEwJENodDFuTkNJTTVrR1o0eW9ad0s4RHVydEo5LzdTSXRURGFHYy9JNUlQWUV0eHVYT09kZ04uIn0.cOq9YMgCC8PMmS5bnbOSZ-z7RIgG3_VS7t1bMXBahPk',
-        },
+  const fetchMessages = () => {
+    if (!user) return;
+    fetch(`http://localhost:3000/api/messages`, {
+      method: 'GET',
+      headers: {
+        authorization: `Bearer ${user.authToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        const newMessage: Array<Message> = data;
+        setMessages(newMessage);
       })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-          const newMessage: Array<Message> = data;
-          setMessages(newMessage);
-        })
-        .catch((error) => {
-          console.error('Error fetching messages: ', error);
-        });
-    };
-    fetchMessages();
+      .catch((error) => {
+        console.error('Error fetching messages: ', error);
+      });
+  };
+  useEffect(() => {
+    // check to see if a user has logged in
+    if (user?.authToken) {
+      console.log('FetchMessages on []');
+      fetchMessages();
+    }
 
     const connectSocket = () => {
       socket.on('connect', () => {
@@ -184,7 +199,7 @@ const Home: React.FC<Props> = ({ socket }) => {
           />
           <div className="msg-main">
             <div className="display">
-              <UsersTable users={users} />
+              <UsersTable user={user} />
               <MessagesTable messages={messages} />
             </div>
             <MessageInput

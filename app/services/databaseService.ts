@@ -39,7 +39,6 @@ export const login = async (input: User) => {
     username: input.username,
   });
   if (!user) throw new Error('User not found');
-  const accessToken = await authorizeUser(input, user);
-  console.log('accesstoken login fn: ', accessToken);
-  return accessToken;
+  const authorizedUser = await authorizeUser(input, user);
+  return authorizedUser;
 };
