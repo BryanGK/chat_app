@@ -4,6 +4,7 @@ export interface User {
   id: number | null | undefined;
   username: string;
   password: string;
+  authToken?: string;
 }
 
 export interface Message {
