@@ -18,7 +18,7 @@ const MessageInput = ({
         onChange={handleMessageChange}
         value={messageInputValue}
       />
-      <Button type="submit" color="primary" onClick={postMessage}>
+      <Button type="submit" color="info" onClick={postMessage}>
         Send Message
       </Button>
     </div>

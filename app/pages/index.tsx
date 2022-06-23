@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   UsersTable,
   MessagesTable,
@@ -12,7 +12,6 @@ import {
 import { Socket } from 'socket.io-client';
 import { MessageEntity } from '../database/entity/MessageEntity';
 import LoginModal from '../components/LoginModal';
-import { UserEntity } from '../database/entity/UserEntity';
 
 interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -22,6 +21,7 @@ const Home: React.FC<Props> = ({ socket }) => {
   const [user, setUser] = useState<User>();
   const [userInputValue, setUserInputValue] = useState<string>('');
   const [passwordInputValue, setPasswordInputValue] = useState<string>('');
+  const [modalState, setModalState] = useState(false);
   const [createUserState, setCreateUserState] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInputValue, setMessageInputValue] = useState<string>('');
@@ -101,6 +101,7 @@ const Home: React.FC<Props> = ({ socket }) => {
           password: data.password,
           authToken: data.authToken,
         });
+        toggleModal();
       })
       .catch((e) => {
         console.error(e);
@@ -109,12 +110,12 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   useEffect(() => {
     if (user?.authToken) {
-      console.log('FetchMessages after setUser');
       fetchMessages();
     }
   }, [user]);
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
+  const toggleModal = () => setModalState(!modalState);
 
   const handleMessage = (msg: MessageEntity) => {
     setMessages((prevState) => [
@@ -191,6 +192,8 @@ const Home: React.FC<Props> = ({ socket }) => {
           <h1>Chat App</h1>
           <LoginModal
             toggleCreateUserState={toggleCreateUserState}
+            modalState={modalState}
+            toggleModal={toggleModal}
             createUserState={createUserState}
             login={login}
             createUser={createUser}
@@ -200,7 +203,7 @@ const Home: React.FC<Props> = ({ socket }) => {
           <div className="msg-main">
             <div className="display">
               <UsersTable user={user} />
-              <MessagesTable messages={messages} />
+              <MessagesTable messages={messages} user={user} />
             </div>
             <MessageInput
               postMessage={postMessage}

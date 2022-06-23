@@ -23,35 +23,64 @@ a {
 
 .msg-main {
   height: 568px;
-  width: 80%;
+  width: 50%;
   max-width: 1024px;
   margin: auto;
+  box-shadow: 0px 0px 10px lightgrey;
+  border-radius: 5px;
+  padding: 1px;
 }
 
 .display {
   display: flex;
+  margin-bottom: 5px;
 }
 
 .msg-form {
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
+  justify-content: center;
 }
 
 .form-input {
   max-width: 70%;
+  margin-right: 10px;
 }
 
 .users-table {
   height: 500px;
   width: 30%;
-  border: 1px solid red;
+  border: 1px solid lightgrey;
+  border-radius: 5px;
   margin: 5px;
+  padding: 0.5em;
 }
 
 .msg-table {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   height: 500px;
   width: 70%;
-  border: 1px solid blue;
+  border: 1px solid lightgrey;
+  border-radius: 5px;
   margin: 5px;
+  padding: 0.5em;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+
+.msg-container {
+  max-width: 80%;
+  height: auto;
+  margin: 0 0 1em 0;
+  box-shadow: -0.3em 0.3em 0.5em grey;
+}
+
+.card-text {
+  text-align: end;
+  font-size: 0.75em;
+}
+
+.btn-info {
+  color: white !important;
 }
