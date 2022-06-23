@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   UsersTable,
   MessagesTable,
@@ -12,7 +12,6 @@ import {
 import { Socket } from 'socket.io-client';
 import { MessageEntity } from '../database/entity/MessageEntity';
 import LoginModal from '../components/LoginModal';
-import { UserEntity } from '../database/entity/UserEntity';
 
 interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -204,7 +203,7 @@ const Home: React.FC<Props> = ({ socket }) => {
           <div className="msg-main">
             <div className="display">
               <UsersTable user={user} />
-              <MessagesTable messages={messages} />
+              <MessagesTable messages={messages} user={user} />
             </div>
             <MessageInput
               postMessage={postMessage}
