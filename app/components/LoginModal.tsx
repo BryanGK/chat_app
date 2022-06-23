@@ -14,6 +14,8 @@ import {
 
 interface Props {
   toggleCreateUserState: () => void;
+  toggleModal: () => void;
+  modalState: boolean;
   handleUserInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handlePasswordInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   createUser: () => void;
@@ -22,23 +24,22 @@ interface Props {
 }
 
 const LoginModal = ({
+  toggleModal,
   toggleCreateUserState,
+  modalState,
   handleUserInputChange,
   handlePasswordInputChange,
   createUser,
   login,
   createUserState,
 }: Props) => {
-  const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
-
   return (
     <div>
-      <Button color="danger" onClick={toggle}>
+      <Button color="danger" onClick={toggleModal}>
         Enter Chat
       </Button>
-      <Modal toggle={toggle} isOpen={modal}>
-        <ModalHeader toggle={toggle}>
+      <Modal toggle={toggleModal} isOpen={modalState}>
+        <ModalHeader toggle={toggleModal}>
           Login - new?{' '}
           <Button
             color="info"
@@ -63,7 +64,7 @@ const LoginModal = ({
             <FormGroup floating>
               <Input
                 id="password"
-                type="text"
+                type="password"
                 placeholder="Password"
                 onChange={handlePasswordInputChange}
               />
@@ -78,7 +79,7 @@ const LoginModal = ({
           >
             {createUserState ? 'Create user' : 'Login'}
           </Button>{' '}
-          <Button onClick={toggle}>Cancel</Button>
+          <Button onClick={toggleModal}>Cancel</Button>
         </ModalFooter>
       </Modal>
     </div>

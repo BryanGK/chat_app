@@ -22,6 +22,7 @@ const Home: React.FC<Props> = ({ socket }) => {
   const [user, setUser] = useState<User>();
   const [userInputValue, setUserInputValue] = useState<string>('');
   const [passwordInputValue, setPasswordInputValue] = useState<string>('');
+  const [modalState, setModalState] = useState(false);
   const [createUserState, setCreateUserState] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInputValue, setMessageInputValue] = useState<string>('');
@@ -101,6 +102,7 @@ const Home: React.FC<Props> = ({ socket }) => {
           password: data.password,
           authToken: data.authToken,
         });
+        toggleModal();
       })
       .catch((e) => {
         console.error(e);
@@ -109,12 +111,12 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   useEffect(() => {
     if (user?.authToken) {
-      console.log('FetchMessages after setUser');
       fetchMessages();
     }
   }, [user]);
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
+  const toggleModal = () => setModalState(!modalState);
 
   const handleMessage = (msg: MessageEntity) => {
     setMessages((prevState) => [
@@ -191,6 +193,8 @@ const Home: React.FC<Props> = ({ socket }) => {
           <h1>Chat App</h1>
           <LoginModal
             toggleCreateUserState={toggleCreateUserState}
+            modalState={modalState}
+            toggleModal={toggleModal}
             createUserState={createUserState}
             login={login}
             createUser={createUser}
