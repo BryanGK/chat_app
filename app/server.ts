@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import next from 'next';
 import { createServer } from 'http';
 import cors from 'cors';
+import cookiePaser from 'cookie-parser';
 import apiRouter from './routes';
 import {
   ClientToServerEvents,
@@ -24,6 +25,8 @@ app.prepare().then(() => {
   const server = express();
 
   server.use(express.json());
+
+  server.use(cookiePaser());
 
   server.use(cors());
 

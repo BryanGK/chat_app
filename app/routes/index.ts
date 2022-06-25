@@ -75,7 +75,11 @@ apiRouter.post('/login', (req: Request, res: Response) => {
   login(req.body)
     .then((authorizedUser) => {
       res
-        .cookie('access_token', authorizedUser.authToken)
+        .cookie('access_token', authorizedUser.authToken, {
+          maxAge: 900000,
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+        })
         .send(JSON.stringify(authorizedUser));
     })
     .catch((error) => {
