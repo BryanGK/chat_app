@@ -17,6 +17,17 @@ interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
+// TO-DO:
+// logout function
+// setUser based on cookie on page refresh of logged in user?
+// --- ^ this branch
+// see all connected web socket users
+// style users table
+// assign colours to user messages
+// better look and feel to UI
+// Containerize?
+// Deploy
+
 const Home: React.FC<Props> = ({ socket }) => {
   const [user, setUser] = useState<User>();
   const [userInputValue, setUserInputValue] = useState<string>('');
@@ -38,7 +49,6 @@ const Home: React.FC<Props> = ({ socket }) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        authorization: `Bearer ${user.authToken}`,
       },
       body: JSON.stringify(messageData),
     })
@@ -94,7 +104,6 @@ const Home: React.FC<Props> = ({ socket }) => {
           return response.statusText;
         }
         const data = await response.json();
-
         setUser({
           id: data.id,
           username: data.username,
@@ -106,6 +115,7 @@ const Home: React.FC<Props> = ({ socket }) => {
       .catch((e) => {
         console.error(e);
       });
+    console.log(document.cookie);
   };
 
   useEffect(() => {
@@ -143,12 +153,10 @@ const Home: React.FC<Props> = ({ socket }) => {
   };
 
   const fetchMessages = () => {
-    if (!user) return;
+    if (!document.cookie) return;
     fetch(`http://localhost:3000/api/messages`, {
       method: 'GET',
-      headers: {
-        authorization: `Bearer ${user.authToken}`,
-      },
+      headers: {},
     })
       .then((response) => response.json())
       .then((data) => {
@@ -162,7 +170,7 @@ const Home: React.FC<Props> = ({ socket }) => {
   };
   useEffect(() => {
     // check to see if a user has logged in
-    if (user?.authToken) {
+    if (document.cookie) {
       console.log('FetchMessages on []');
       fetchMessages();
     }
@@ -215,6 +223,12 @@ const Home: React.FC<Props> = ({ socket }) => {
       </main>
     </div>
   );
+};
+
+export const getServerSideProps = async (context: any) => {
+  return {
+    props: {},
+  };
 };
 
 export default Home;
