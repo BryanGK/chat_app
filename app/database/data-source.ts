@@ -17,7 +17,6 @@ const AppDataSource = new DataSource({
   subscribers: [],
   migrations: [],
 });
-console.log(AppDataSource);
 
 AppDataSource.initialize()
   .then(() => {

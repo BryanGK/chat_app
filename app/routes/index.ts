@@ -1,5 +1,6 @@
 import express from 'express';
 import { Request, Response } from 'express';
+import { Message, User } from '../components';
 import { MessageEntity } from '../database/entity/MessageEntity';
 import { UserEntity } from '../database/entity/UserEntity';
 import authenticateToken from '../middleware/authenticateToken';
@@ -18,7 +19,7 @@ apiRouter.get(
   authenticateToken,
   async (req: Request, res: Response) => {
     try {
-      const messages = await getData(MessageEntity);
+      const messages = await getData('Messages');
       res.send(messages);
     } catch (error) {
       res.sendStatus(500).send(`Error getting messages: ${error}`);
@@ -41,15 +42,19 @@ apiRouter.post(
   }
 );
 
-apiRouter.get('/users', async (req: Request, res: Response) => {
-  try {
-    const users = await getData(UserEntity);
-    res.send(users);
-  } catch (error) {
-    res.sendStatus(500).send(`Error getting users: ${error}`);
-    res.send(`Error getting users: ${error}`);
+apiRouter.get(
+  '/user',
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    try {
+      const user = await getData('User', req.body.user);
+      res.send(user);
+    } catch (error) {
+      res.sendStatus(500).send(`Error getting users: ${error}`);
+      res.send(`Error getting users: ${error}`);
+    }
   }
-});
+);
 
 apiRouter.post('/users', async (req: Request, res: Response) => {
   try {
