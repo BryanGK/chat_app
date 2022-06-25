@@ -11,6 +11,8 @@ import {
   postUser,
   login,
 } from '../services/databaseService';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const apiRouter = express();
 
@@ -91,6 +93,11 @@ apiRouter.post('/login', (req: Request, res: Response) => {
       if (error.message.startsWith('User')) res.status(404).send(error.message);
       else res.status(403).send(error.message);
     });
+});
+
+apiRouter.get('/logout', (req: Request, res: Response) => {
+  res.clearCookie('access_token');
+  res.redirect('/');
 });
 
 export default apiRouter;

@@ -20,6 +20,7 @@ interface Props {
   handlePasswordInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   createUser: () => void;
   login: () => void;
+  logout: () => void;
   createUserState: boolean;
 }
 
@@ -31,12 +32,16 @@ const LoginModal = ({
   handlePasswordInputChange,
   createUser,
   login,
+  logout,
   createUserState,
 }: Props) => {
   return (
     <div>
       <Button color="danger" onClick={toggleModal}>
         Enter Chat
+      </Button>
+      <Button colour="info" onClick={logout}>
+        Leave Chat
       </Button>
       <Modal toggle={toggleModal} isOpen={modalState}>
         <ModalHeader toggle={toggleModal}>

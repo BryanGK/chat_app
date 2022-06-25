@@ -110,10 +110,18 @@ const Home: React.FC<Props> = ({ socket }) => {
         });
         toggleModal();
       })
+      .then(() => {
+        fetchMessages();
+      })
       .catch((e) => {
         console.error(e);
       });
-    console.log(document.cookie);
+  };
+
+  const logout = () => {
+    fetch(`http://localhost:3000/api/logout`).then(() => {
+      window.location.reload();
+    });
   };
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
@@ -174,6 +182,9 @@ const Home: React.FC<Props> = ({ socket }) => {
           ...data[0],
         });
       })
+      .then(() => {
+        fetchMessages();
+      })
       .catch((e) => {
         console.error('Error fecthing user: ', e);
       });
@@ -212,6 +223,7 @@ const Home: React.FC<Props> = ({ socket }) => {
             toggleModal={toggleModal}
             createUserState={createUserState}
             login={login}
+            logout={logout}
             createUser={createUser}
             handleUserInputChange={handleUserInputChange}
             handlePasswordInputChange={handlePasswordInputChange}
