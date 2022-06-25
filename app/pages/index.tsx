@@ -51,7 +51,7 @@ const Home: React.FC<Props> = ({ socket }) => {
     setMessageInputValue('');
   };
 
-  const createUser = async () => {
+  const createUser = () => {
     const user: User = {
       id: undefined,
       username: userInputValue,
