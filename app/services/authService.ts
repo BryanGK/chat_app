@@ -2,6 +2,8 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../components';
 import { UserEntity } from '../database/entity/UserEntity';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const authorizeUser = async (input: User, user: UserEntity) => {
   const isAuth = await bcrypt.compare(input.password, user.password);

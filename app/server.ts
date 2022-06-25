@@ -13,6 +13,8 @@ import {
   ServerToClientEvents,
   SocketData,
 } from './components';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOST;

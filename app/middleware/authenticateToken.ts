@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const authenticateToken = (req: Request, res: Response, next: Function) => {
   const cookieHeader = req.headers['cookie'];
