@@ -1,4 +1,5 @@
-import { Button, Card, CardText, CardTitle } from 'reactstrap';
+import { useEffect, useRef } from 'react';
+import { Card, CardText, CardTitle } from 'reactstrap';
 import { Message, User } from '../components';
 
 interface MessagesList {
@@ -7,6 +8,12 @@ interface MessagesList {
 }
 
 const MessagesTable: React.FC<MessagesList> = ({ messages, user }) => {
+  const bottomRef = useRef<null | HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   return (
     <div className="msg-table">
       {messages.map((msg) => {
@@ -22,6 +29,7 @@ const MessagesTable: React.FC<MessagesList> = ({ messages, user }) => {
           </div>
         );
       })}
+      <div ref={bottomRef} />
     </div>
   );
 };

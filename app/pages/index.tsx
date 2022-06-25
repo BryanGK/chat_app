@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   UsersTable,
   MessagesTable,
@@ -16,6 +16,16 @@ import LoginModal from '../components/LoginModal';
 interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
+
+// TO-DO:
+// logout function
+// --- ^ this branch
+// see all connected web socket users
+// style users table
+// assign colours to user messages
+// better look and feel to UI
+// Containerize?
+// Deploy
 
 const Home: React.FC<Props> = ({ socket }) => {
   const [user, setUser] = useState<User>();
@@ -38,7 +48,6 @@ const Home: React.FC<Props> = ({ socket }) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        authorization: `Bearer ${user.authToken}`,
       },
       body: JSON.stringify(messageData),
     })
@@ -94,25 +103,26 @@ const Home: React.FC<Props> = ({ socket }) => {
           return response.statusText;
         }
         const data = await response.json();
-
         setUser({
           id: data.id,
           username: data.username,
           password: data.password,
-          authToken: data.authToken,
         });
         toggleModal();
+      })
+      .then(() => {
+        fetchMessages();
       })
       .catch((e) => {
         console.error(e);
       });
   };
 
-  useEffect(() => {
-    if (user?.authToken) {
-      fetchMessages();
-    }
-  }, [user]);
+  const logout = () => {
+    fetch(`http://localhost:3000/api/logout`).then(() => {
+      window.location.reload();
+    });
+  };
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
   const toggleModal = () => setModalState(!modalState);
@@ -143,16 +153,13 @@ const Home: React.FC<Props> = ({ socket }) => {
   };
 
   const fetchMessages = () => {
-    if (!user) return;
+    if (!document.cookie) return;
     fetch(`http://localhost:3000/api/messages`, {
       method: 'GET',
-      headers: {
-        authorization: `Bearer ${user.authToken}`,
-      },
+      headers: {},
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         const newMessage: Array<Message> = data;
         setMessages(newMessage);
       })
@@ -160,12 +167,32 @@ const Home: React.FC<Props> = ({ socket }) => {
         console.error('Error fetching messages: ', error);
       });
   };
+
+  const fetchUser = () => {
+    fetch(`http://localhost:3000/api/user`, {
+      method: 'GET',
+    })
+      .then(async (response) => {
+        if (response.status !== 200) {
+          console.log(response.statusText);
+          return response.statusText;
+        }
+        const data: User[] = await response.json();
+        setUser({
+          ...data[0],
+        });
+      })
+      .then(() => {
+        fetchMessages();
+      })
+      .catch((e) => {
+        console.error('Error fecthing user: ', e);
+      });
+  };
+
   useEffect(() => {
-    // check to see if a user has logged in
-    if (user?.authToken) {
-      console.log('FetchMessages on []');
-      fetchMessages();
-    }
+    fetchMessages();
+    fetchUser();
 
     const connectSocket = () => {
       socket.on('connect', () => {
@@ -196,6 +223,7 @@ const Home: React.FC<Props> = ({ socket }) => {
             toggleModal={toggleModal}
             createUserState={createUserState}
             login={login}
+            logout={logout}
             createUser={createUser}
             handleUserInputChange={handleUserInputChange}
             handlePasswordInputChange={handlePasswordInputChange}
@@ -215,6 +243,12 @@ const Home: React.FC<Props> = ({ socket }) => {
       </main>
     </div>
   );
+};
+
+export const getServerSideProps = async (context: any) => {
+  return {
+    props: {},
+  };
 };
 
 export default Home;

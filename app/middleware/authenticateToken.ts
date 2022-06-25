@@ -1,10 +1,15 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const authenticateToken = (req: Request, res: Response, next: Function) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader?.split(' ')[1];
-  if (!token) return res.sendStatus(401);
+  const cookieHeader = req.headers['cookie'];
+  if (!cookieHeader) return res.sendStatus(401);
+
+  const regex = /(?<=access_token=)[^]+/;
+  const match = regex.exec(cookieHeader);
+  const token = match ? match[0] : '';
 
   jwt.verify(
     token as string,

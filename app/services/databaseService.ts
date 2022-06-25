@@ -3,13 +3,20 @@ import { EntityTarget } from 'typeorm';
 import { MessageEntity } from '../database/entity/MessageEntity';
 import { UserEntity } from '../database/entity/UserEntity';
 import * as bcrypt from 'bcrypt';
-import { User } from '../components';
+import { Message, User } from '../components';
 import jwt from 'jsonwebtoken';
 import authorizeUser from './authService';
 
-export const getData = async (entity: EntityTarget<unknown>) => {
-  const messagesRepository = AppDataSource.getRepository(entity);
-  return await messagesRepository.find();
+export const getData = async (entity: 'User' | 'Messages', userReq?: User) => {
+  if (entity === 'User' && userReq) {
+    const messagesRepository = AppDataSource.getRepository(UserEntity);
+    const users = (await messagesRepository.find()) as Array<User>;
+    return users.filter((dbUser) => dbUser.id === userReq.id);
+  }
+  if (entity === 'Messages') {
+    const messagesRepository = AppDataSource.getRepository(MessageEntity);
+    return (await messagesRepository.find()) as Array<Message>;
+  }
 };
 
 export const getUserById = async (id: number) => {

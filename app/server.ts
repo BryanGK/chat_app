@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import next from 'next';
 import { createServer } from 'http';
 import cors from 'cors';
+import cookiePaser from 'cookie-parser';
 import apiRouter from './routes';
 import {
   ClientToServerEvents,
@@ -12,6 +13,8 @@ import {
   ServerToClientEvents,
   SocketData,
 } from './components';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOST;
@@ -24,6 +27,8 @@ app.prepare().then(() => {
   const server = express();
 
   server.use(express.json());
+
+  server.use(cookiePaser());
 
   server.use(cors());
 
