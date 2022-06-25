@@ -74,7 +74,9 @@ apiRouter.get('/users/:id', async (req: Request, res: Response) => {
 apiRouter.post('/login', (req: Request, res: Response) => {
   login(req.body)
     .then((authorizedUser) => {
-      res.send(JSON.stringify(authorizedUser));
+      res
+        .cookie('access_token', authorizedUser.authToken)
+        .send(JSON.stringify(authorizedUser));
     })
     .catch((error) => {
       if (error.message.startsWith('User')) res.status(404).send(error.message);
