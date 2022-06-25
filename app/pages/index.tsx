@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   UsersTable,
   MessagesTable,
@@ -19,7 +19,6 @@ interface Props {
 
 // TO-DO:
 // logout function
-// setUser based on cookie on page refresh of logged in user?
 // --- ^ this branch
 // see all connected web socket users
 // style users table
@@ -108,7 +107,6 @@ const Home: React.FC<Props> = ({ socket }) => {
           id: data.id,
           username: data.username,
           password: data.password,
-          authToken: data.authToken,
         });
         toggleModal();
       })
@@ -117,12 +115,6 @@ const Home: React.FC<Props> = ({ socket }) => {
       });
     console.log(document.cookie);
   };
-
-  useEffect(() => {
-    if (user?.authToken) {
-      fetchMessages();
-    }
-  }, [user]);
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
   const toggleModal = () => setModalState(!modalState);
@@ -160,7 +152,6 @@ const Home: React.FC<Props> = ({ socket }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         const newMessage: Array<Message> = data;
         setMessages(newMessage);
       })
@@ -168,12 +159,29 @@ const Home: React.FC<Props> = ({ socket }) => {
         console.error('Error fetching messages: ', error);
       });
   };
+
+  const fetchUser = () => {
+    fetch(`http://localhost:3000/api/user`, {
+      method: 'GET',
+    })
+      .then(async (response) => {
+        if (response.status !== 200) {
+          console.log(response.statusText);
+          return response.statusText;
+        }
+        const data: User[] = await response.json();
+        setUser({
+          ...data[0],
+        });
+      })
+      .catch((e) => {
+        console.error('Error fecthing user: ', e);
+      });
+  };
+
   useEffect(() => {
-    // check to see if a user has logged in
-    if (document.cookie) {
-      console.log('FetchMessages on []');
-      fetchMessages();
-    }
+    fetchMessages();
+    fetchUser();
 
     const connectSocket = () => {
       socket.on('connect', () => {
