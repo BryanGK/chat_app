@@ -2,7 +2,7 @@
 
 To run this application locally please do the following:
 
-1. Have instance of PostgreSQL database running locally. Click [here]('https://www.postgresql.org/download/') to download.
+1. Have instance of PostgreSQL database running locally. Click [here](https://www.postgresql.org/download/) to download.
 2. In the `app` directory run:
 ```bash
 $ cp ./sample.env .env
