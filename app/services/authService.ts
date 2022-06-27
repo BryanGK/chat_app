@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const authorizeUser = async (input: User, user: UserEntity) => {
+const authenticateUser = async (input: User, user: UserEntity) => {
   const isAuth = await bcrypt.compare(input.password, user.password);
   if (!isAuth) throw new Error('Incorrect password');
 
@@ -14,14 +14,14 @@ const authorizeUser = async (input: User, user: UserEntity) => {
     process.env.ACCESS_TOKEN_SECRET as string
   );
 
-  const authorizedUser: User = {
+  const authenticatedUser: User = {
     id: user.id,
     username: user.username,
     password: '',
     authToken: authToken,
   };
 
-  return authorizedUser;
+  return authenticatedUser;
 };
 
-export default authorizeUser;
+export default authenticateUser;
