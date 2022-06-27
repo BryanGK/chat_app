@@ -5,6 +5,7 @@ export interface User {
   username: string;
   password: string;
   authToken?: string;
+  socketId?: string;
 }
 
 export interface Message {
@@ -18,11 +19,13 @@ export interface ServerToClientEvents {
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
   returnMessage: (msg: MessageEntity) => void;
+  returnConnectedUsers: (users: Array<User>) => void;
 }
 
 export interface ClientToServerEvents {
   hello: () => void;
   savedMessage: (msg: MessageEntity) => void;
+  connectedUser: (user: User) => void;
 }
 
 export interface InterServerEvents {

@@ -14,6 +14,11 @@ import {
   SocketData,
 } from './components';
 import dotenv from 'dotenv';
+import {
+  deleteActiveUser,
+  getActiveUsers,
+  setActiveUsers,
+} from './services/activeUserService';
 dotenv.config();
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -46,10 +51,17 @@ app.prepare().then(() => {
   >(httpServer);
 
   io.on('connect', (socket) => {
-    console.log(socket.id);
+    io.emit('returnConnectedUsers', getActiveUsers());
     socket.on('savedMessage', (msg) => {
-      console.log('returnMessage');
       io.emit('returnMessage', msg);
+    });
+    socket.on('connectedUser', (user) => {
+      setActiveUsers(user, socket.id);
+      io.emit('returnConnectedUsers', getActiveUsers());
+    });
+    socket.on('disconnect', () => {
+      deleteActiveUser(socket.id);
+      io.emit('returnConnectedUsers', getActiveUsers());
     });
   });
 

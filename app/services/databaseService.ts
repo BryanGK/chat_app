@@ -5,7 +5,7 @@ import { UserEntity } from '../database/entity/UserEntity';
 import * as bcrypt from 'bcrypt';
 import { Message, User } from '../components';
 import jwt from 'jsonwebtoken';
-import authorizeUser from './authService';
+import authenticateUser from './authService';
 
 export const getData = async (entity: 'User' | 'Messages', userReq?: User) => {
   if (entity === 'User' && userReq) {
@@ -46,6 +46,6 @@ export const login = async (input: User) => {
     username: input.username,
   });
   if (!user) throw new Error('User not found');
-  const authorizedUser = await authorizeUser(input, user);
-  return authorizedUser;
+  const authenticatedUser = await authenticateUser(input, user);
+  return authenticatedUser;
 };
