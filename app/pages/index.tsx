@@ -18,10 +18,7 @@ interface Props {
 }
 
 // TO-DO:
-// logout function
-// --- ^ this branch
-// see all connected web socket users
-// style users table
+
 // assign colours to user messages
 // better look and feel to UI
 // Containerize?
@@ -29,6 +26,7 @@ interface Props {
 
 const Home: React.FC<Props> = ({ socket }) => {
   const [user, setUser] = useState<User>();
+  const [activeUsers, setActiveUsers] = useState<User[]>([]);
   const [userInputValue, setUserInputValue] = useState<string>('');
   const [passwordInputValue, setPasswordInputValue] = useState<string>('');
   const [modalState, setModalState] = useState(false);
@@ -104,11 +102,10 @@ const Home: React.FC<Props> = ({ socket }) => {
         }
         const data = await response.json();
         setUser({
-          id: data.id,
-          username: data.username,
-          password: data.password,
+          ...data,
         });
         toggleModal();
+        socket.emit('connectedUser', { ...data });
       })
       .then(() => {
         fetchMessages();
@@ -127,7 +124,7 @@ const Home: React.FC<Props> = ({ socket }) => {
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
   const toggleModal = () => setModalState(!modalState);
 
-  const handleMessage = (msg: MessageEntity) => {
+  const handleMessage = (msg: Message) => {
     setMessages((prevState) => [
       ...prevState,
       {
@@ -194,17 +191,13 @@ const Home: React.FC<Props> = ({ socket }) => {
     fetchMessages();
     fetchUser();
 
-    const connectSocket = () => {
-      socket.on('connect', () => {
-        console.log('Connected with: ', socket.id);
-      });
-    };
-
     socket.on('returnMessage', (msg) => {
       handleMessage(msg);
     });
 
-    connectSocket();
+    socket.on('returnConnectedUsers', (users) => {
+      setActiveUsers([...users]);
+    });
   }, []);
 
   return (
@@ -230,7 +223,7 @@ const Home: React.FC<Props> = ({ socket }) => {
           />
           <div className="msg-main">
             <div className="display">
-              <UsersTable user={user} />
+              <UsersTable user={user} activeUsers={activeUsers} />
               <MessagesTable messages={messages} user={user} />
             </div>
             <MessageInput
