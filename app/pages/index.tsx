@@ -150,18 +150,20 @@ const Home: React.FC<Props> = ({ socket }) => {
   };
 
   const fetchMessages = () => {
-    if (!document.cookie) return;
     fetch(`http://localhost:3000/api/messages`, {
       method: 'GET',
       headers: {},
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then(async (response) => {
+        if (response.status !== 200) {
+          throw new Error(response.statusText);
+        }
+        const data = await response.json();
         const newMessage: Array<Message> = data;
         setMessages(newMessage);
       })
       .catch((error) => {
-        console.error('Error fetching messages: ', error);
+        console.error(error);
       });
   };
 
@@ -171,8 +173,7 @@ const Home: React.FC<Props> = ({ socket }) => {
     })
       .then(async (response) => {
         if (response.status !== 200) {
-          console.log(response.statusText);
-          return response.statusText;
+          throw new Error(response.statusText);
         }
         const data: User[] = await response.json();
         setUser({
@@ -182,14 +183,14 @@ const Home: React.FC<Props> = ({ socket }) => {
       .then(() => {
         fetchMessages();
       })
-      .catch((e) => {
-        console.error('Error fecthing user: ', e);
+      .catch((error) => {
+        console.error(error);
       });
   };
 
   useEffect(() => {
-    fetchMessages();
     fetchUser();
+    fetchMessages();
 
     socket.on('returnMessage', (msg) => {
       handleMessage(msg);
