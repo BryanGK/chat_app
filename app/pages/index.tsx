@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   UsersTable,
@@ -10,7 +11,6 @@ import {
   ClientToServerEvents,
 } from '../components';
 import { Socket } from 'socket.io-client';
-import { MessageEntity } from '../database/entity/MessageEntity';
 import LoginModal from '../components/LoginModal';
 
 interface Props {
@@ -150,18 +150,20 @@ const Home: React.FC<Props> = ({ socket }) => {
   };
 
   const fetchMessages = () => {
-    if (!document.cookie) return;
     fetch(`http://localhost:3000/api/messages`, {
       method: 'GET',
       headers: {},
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then(async (response) => {
+        if (response.status !== 200) {
+          throw new Error(response.statusText);
+        }
+        const data = await response.json();
         const newMessage: Array<Message> = data;
         setMessages(newMessage);
       })
       .catch((error) => {
-        console.error('Error fetching messages: ', error);
+        console.error(error);
       });
   };
 
@@ -171,8 +173,7 @@ const Home: React.FC<Props> = ({ socket }) => {
     })
       .then(async (response) => {
         if (response.status !== 200) {
-          console.log(response.statusText);
-          return response.statusText;
+          throw new Error(response.statusText);
         }
         const data: User[] = await response.json();
         setUser({
@@ -182,14 +183,14 @@ const Home: React.FC<Props> = ({ socket }) => {
       .then(() => {
         fetchMessages();
       })
-      .catch((e) => {
-        console.error('Error fecthing user: ', e);
+      .catch((error) => {
+        console.error(error);
       });
   };
 
   useEffect(() => {
-    fetchMessages();
     fetchUser();
+    fetchMessages();
 
     socket.on('returnMessage', (msg) => {
       handleMessage(msg);
@@ -203,24 +204,22 @@ const Home: React.FC<Props> = ({ socket }) => {
   return (
     <div>
       <Head>
-        <title>Chat App</title>
+        <title>yu | chat</title>
         <meta name="description" content="Chat app by BryanGK" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
         <div className="main">
-          <h1>Chat App</h1>
-          <LoginModal
-            toggleCreateUserState={toggleCreateUserState}
-            modalState={modalState}
-            toggleModal={toggleModal}
-            createUserState={createUserState}
-            login={login}
-            logout={logout}
-            createUser={createUser}
-            handleUserInputChange={handleUserInputChange}
-            handlePasswordInputChange={handlePasswordInputChange}
-          />
+          <header className="main-header">
+            <Image
+              className="header-image"
+              src="/discussion.png"
+              alt="Chat app logo"
+              width="100"
+              height="80"
+            />
+            <h1 className="header-h1">yu | chat</h1>
+          </header>
           <div className="msg-main">
             <div className="display">
               <UsersTable user={user} activeUsers={activeUsers} />
@@ -230,6 +229,19 @@ const Home: React.FC<Props> = ({ socket }) => {
               postMessage={postMessage}
               handleMessageChange={handleMessageChange}
               messageInputValue={messageInputValue}
+            />
+          </div>
+          <div>
+            <LoginModal
+              toggleCreateUserState={toggleCreateUserState}
+              modalState={modalState}
+              toggleModal={toggleModal}
+              createUserState={createUserState}
+              login={login}
+              logout={logout}
+              createUser={createUser}
+              handleUserInputChange={handleUserInputChange}
+              handlePasswordInputChange={handlePasswordInputChange}
             />
           </div>
         </div>

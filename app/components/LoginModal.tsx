@@ -37,12 +37,14 @@ const LoginModal = ({
 }: Props) => {
   return (
     <div>
-      <Button color="danger" onClick={toggleModal}>
-        Enter Chat
-      </Button>
-      <Button colour="info" onClick={logout}>
-        Leave Chat
-      </Button>
+      <div className="user-buttons">
+        <Button className="enter-chat" color="danger" onClick={toggleModal}>
+          Enter Chat
+        </Button>
+        <Button className="leave-chat" colour="info" onClick={logout}>
+          Leave Chat
+        </Button>
+      </div>
       <Modal toggle={toggleModal} isOpen={modalState}>
         <ModalHeader toggle={toggleModal}>
           Login - new?{' '}

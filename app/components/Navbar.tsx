@@ -1,24 +1,19 @@
 import Image from 'next/image';
-import { Nav, NavItem, NavLink } from 'reactstrap';
+import { NavItem, NavLink, Navbar, NavbarBrand } from 'reactstrap';
 
-export default function Navbar() {
+export default function Nav() {
   return (
-    <Nav className="bg-light">
-      <NavItem>
-        {' '}
+    <Navbar color="info">
+      <NavbarBrand href="/">
         <Image
-          src="/vercel.svg"
+          src="/discussion.png"
           alt="Chat app logo"
           width="60"
           height="48"
-          className="d-inline-block align-text-top"
-        ></Image>
-      </NavItem>
-      <NavItem>
-        <NavLink active href="#">
-          Welcome to Chat App
-        </NavLink>
-      </NavItem>
-    </Nav>
+          className="nav-image"
+        />
+        <h4>yu | chat</h4>
+      </NavbarBrand>
+    </Navbar>
   );
 }

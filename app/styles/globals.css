@@ -21,14 +21,41 @@ a {
   margin: auto;
 }
 
+.main-header {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-h1 {
+  margin: 0 0 0 0.5em;
+  font-size: 5em;
+}
+
+.navbar-brand h4 {
+  color: white;
+}
+
 .msg-main {
   height: 568px;
-  width: 50%;
-  max-width: 1024px;
+  width: 90%;
+  max-width: 768px;
   margin: auto;
   box-shadow: 0px 0px 10px lightgrey;
   border-radius: 5px;
   padding: 1px;
+}
+
+.user-buttons {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.enter-chat {
+  margin: 1em;
 }
 
 .display {
@@ -48,7 +75,7 @@ a {
 
 .users-table {
   height: 500px;
-  width: 30%;
+  width: 25%;
   border: 1px solid lightgrey;
   border-radius: 5px;
   margin: 5px;
@@ -60,7 +87,7 @@ a {
   flex-direction: column;
   align-items: flex-end;
   height: 500px;
-  width: 70%;
+  width: 75%;
   border: 1px solid lightgrey;
   border-radius: 5px;
   margin: 5px;
