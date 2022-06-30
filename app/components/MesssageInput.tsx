@@ -19,7 +19,7 @@ const MessageInput = ({
         value={messageInputValue}
       />
       <Button type="submit" color="info" onClick={postMessage}>
-        Send Message
+        Send
       </Button>
     </div>
   );
