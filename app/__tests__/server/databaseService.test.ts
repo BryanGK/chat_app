@@ -6,6 +6,7 @@ describe('databaseService getData fn', () => {
     const expected: UserEntity = {
       id: 0,
       username: 'Bob',
+      password: '',
     };
     jest.mock('typeorm', () => ({
       getRepository: jest.fn().mockResolvedValue(expected),
