@@ -12,6 +12,7 @@ import {
 } from '../components';
 import { Socket } from 'socket.io-client';
 import LoginModal from '../components/LoginModal';
+import getFetch from '../utils/fetch';
 
 interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -150,26 +151,21 @@ const Home: React.FC<Props> = ({ socket }) => {
   };
 
   const fetchMessages = () => {
-    fetch(`http://localhost:3000/api/messages`, {
-      method: 'GET',
-      headers: {},
-    })
-      .then(async (response) => {
-        if (response.status !== 200) {
-          throw new Error(response.statusText);
-        }
-        const data = await response.json();
-        const newMessage: Array<Message> = data;
-        setMessages(newMessage);
+    getFetch('http://localhost:3000/api/messages')
+      .then((res: Array<Message>) => {
+        setMessages(res);
       })
-      .catch((error) => {
-        console.error(error);
+      .catch((e) => {
+        console.error('Error fecth messages ', e);
       });
   };
 
   const fetchUser = () => {
     fetch(`http://localhost:3000/api/user`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
       .then(async (response) => {
         if (response.status !== 200) {
@@ -190,7 +186,7 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   useEffect(() => {
     fetchUser();
-    fetchMessages();
+    // fetchMessages();
 
     socket.on('returnMessage', (msg) => {
       handleMessage(msg);
