@@ -1,4 +1,6 @@
-const getFetch = (url: string, params: {} = {}) => {
+import { Message, User } from '../components';
+
+export const getFetch = (url: string, params: {} = {}) => {
   const queryString = Object.entries(params)
     .map((param) => {
       return `${param[0]}=${param[1]}`;
@@ -17,4 +19,14 @@ const getFetch = (url: string, params: {} = {}) => {
   });
 };
 
-export default getFetch;
+export const postFetch = (url: string, body: Message | User) => {
+  return fetch(`${url}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  }).catch((e) => {
+    throw new Error(e);
+  });
+};
