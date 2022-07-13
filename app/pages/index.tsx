@@ -12,7 +12,7 @@ import {
 } from '../components';
 import { Socket } from 'socket.io-client';
 import LoginModal from '../components/LoginModal';
-import getFetch from '../utils/fetch';
+import { getFetch, postFetch } from '../utils/fetch';
 
 interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -43,20 +43,14 @@ const Home: React.FC<Props> = ({ socket }) => {
       author: user.username,
       id: undefined,
     };
-    fetch(`http://localhost:3000/api/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(messageData),
-    })
+    postFetch('http://localhost:3000/api/messages', messageData)
       .then(() => {
         socket.emit('savedMessage', messageData);
+        setMessageInputValue('');
       })
-      .catch((error) => {
-        console.error('Error sending message: ', error);
+      .catch((e) => {
+        console.error('Error sending message: ', e);
       });
-    setMessageInputValue('');
   };
 
   const createUser = () => {
@@ -105,11 +99,9 @@ const Home: React.FC<Props> = ({ socket }) => {
         setUser({
           ...data,
         });
-        toggleModal();
         socket.emit('connectedUser', { ...data });
-      })
-      .then(() => {
-        fetchMessages();
+        toggleModal();
+        fetchUser();
       })
       .catch((e) => {
         console.error(e);
@@ -156,7 +148,7 @@ const Home: React.FC<Props> = ({ socket }) => {
         setMessages(res);
       })
       .catch((e) => {
-        console.error('Error fecth messages ', e);
+        console.error('Error fetching messages ', e);
       });
   };
 
@@ -167,14 +159,17 @@ const Home: React.FC<Props> = ({ socket }) => {
           ...res[0],
         });
       })
+      .then(() => {
+        fetchMessages();
+      })
       .catch((e) => {
-        console.error('Error fetching users ', e);
+        setModalState(true);
+        console.error('Logged in user not found:\n', e);
       });
   };
 
   useEffect(() => {
     fetchUser();
-    fetchMessages();
 
     socket.on('returnMessage', (msg) => {
       handleMessage(msg);
