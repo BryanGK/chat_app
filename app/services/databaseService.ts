@@ -1,10 +1,8 @@
 import AppDataSource from '../database/data-source';
-import { EntityTarget } from 'typeorm';
 import { MessageEntity } from '../database/entity/MessageEntity';
 import { UserEntity } from '../database/entity/UserEntity';
 import * as bcrypt from 'bcrypt';
 import { Message, User } from '../components';
-import jwt from 'jsonwebtoken';
 import authenticateUser from './authService';
 
 export const getData = async (entity: 'User' | 'Messages', userReq?: User) => {
