@@ -161,32 +161,20 @@ const Home: React.FC<Props> = ({ socket }) => {
   };
 
   const fetchUser = () => {
-    fetch(`http://localhost:3000/api/user`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(async (response) => {
-        if (response.status !== 200) {
-          throw new Error(response.statusText);
-        }
-        const data: User[] = await response.json();
+    getFetch('http://localhost:3000/api/user')
+      .then((res: Array<User>) => {
         setUser({
-          ...data[0],
+          ...res[0],
         });
       })
-      .then(() => {
-        fetchMessages();
-      })
-      .catch((error) => {
-        console.error(error);
+      .catch((e) => {
+        console.error('Error fetching users ', e);
       });
   };
 
   useEffect(() => {
     fetchUser();
-    // fetchMessages();
+    fetchMessages();
 
     socket.on('returnMessage', (msg) => {
       handleMessage(msg);
