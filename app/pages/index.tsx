@@ -12,6 +12,7 @@ import {
 } from '../components';
 import { Socket } from 'socket.io-client';
 import LoginModal from '../components/LoginModal';
+import { getFetch, postFetch } from '../utils/fetch';
 
 interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -34,84 +35,77 @@ const Home: React.FC<Props> = ({ socket }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInputValue, setMessageInputValue] = useState<string>('');
 
-  const postMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
+  useEffect(() => {
+    fetchUser();
+
+    socket.on('returnMessage', (msg) => {
+      handleMessage(msg);
+    });
+
+    socket.on('returnConnectedUsers', (users) => {
+      setActiveUsers([...users]);
+    });
+  }, []);
+
+  const postMessage = (
+    e:
+      | React.MouseEvent<HTMLButtonElement>
+      | React.KeyboardEvent<HTMLButtonElement>
+  ) => {
     if (!user) return;
     e.preventDefault();
     const messageData: Message = {
       message: messageInputValue,
       author: user.username,
-      id: undefined,
+      id: null,
     };
-    fetch(`http://localhost:3000/api/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(messageData),
-    })
+    postFetch('http://localhost:3000/api/messages', messageData)
       .then(() => {
         socket.emit('savedMessage', messageData);
+        setMessageInputValue('');
       })
-      .catch((error) => {
-        console.error('Error sending message: ', error);
+      .catch((e) => {
+        console.error('Error sending message: ', e);
       });
-    setMessageInputValue('');
   };
 
   const createUser = () => {
     const user: User = {
-      id: undefined,
+      id: null,
       username: userInputValue,
       password: passwordInputValue,
     };
     if (createUserState) {
-      fetch(`http://localhost:3000/api/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(user),
-      })
+      postFetch('http://localhost:3000/api/users', user)
         .then(async (response) => {
           const data = await response.json();
           console.log(data);
         })
         .catch((e) => {
           console.error(e);
+        })
+        .finally(() => {
+          setCreateUserState(false);
+          login();
         });
     }
   };
 
   const login = () => {
     const user: User = {
-      id: undefined,
+      id: null,
       username: userInputValue,
       password: passwordInputValue,
     };
-    fetch(`http://localhost:3000/api/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(user),
-    })
-      .then(async (response) => {
-        if (response.status !== 200) {
-          console.log(response.statusText);
-          return response.statusText;
-        }
-        const data = await response.json();
-        setUser({
-          ...data,
-        });
+    postFetch('http://localhost:3000/api/login', user)
+      .then((res) => {
+        setUser({ ...res });
+        socket.emit('connectedUser', { ...res });
         toggleModal();
-        socket.emit('connectedUser', { ...data });
-      })
-      .then(() => {
-        fetchMessages();
+        fetchUser();
       })
       .catch((e) => {
-        console.error(e);
+        console.log(e);
       });
   };
 
@@ -123,6 +117,32 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
   const toggleModal = () => setModalState(!modalState);
+
+  const fetchMessages = () => {
+    getFetch('http://localhost:3000/api/messages')
+      .then((res: Array<Message>) => {
+        setMessages(res);
+      })
+      .catch((e) => {
+        console.error('Error fetching messages ', e);
+      });
+  };
+
+  const fetchUser = () => {
+    getFetch('http://localhost:3000/api/user')
+      .then((res: Array<User>) => {
+        setUser({
+          ...res[0],
+        });
+      })
+      .then(() => {
+        fetchMessages();
+      })
+      .catch((e) => {
+        setModalState(true);
+        console.error('Logged in user not found:\n', e);
+      });
+  };
 
   const handleMessage = (msg: Message) => {
     setMessages((prevState) => [
@@ -148,58 +168,6 @@ const Home: React.FC<Props> = ({ socket }) => {
   ) => {
     setPasswordInputValue(e.target.value);
   };
-
-  const fetchMessages = () => {
-    fetch(`http://localhost:3000/api/messages`, {
-      method: 'GET',
-      headers: {},
-    })
-      .then(async (response) => {
-        if (response.status !== 200) {
-          throw new Error(response.statusText);
-        }
-        const data = await response.json();
-        const newMessage: Array<Message> = data;
-        setMessages(newMessage);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
-  const fetchUser = () => {
-    fetch(`http://localhost:3000/api/user`, {
-      method: 'GET',
-    })
-      .then(async (response) => {
-        if (response.status !== 200) {
-          throw new Error(response.statusText);
-        }
-        const data: User[] = await response.json();
-        setUser({
-          ...data[0],
-        });
-      })
-      .then(() => {
-        fetchMessages();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
-  useEffect(() => {
-    fetchUser();
-    fetchMessages();
-
-    socket.on('returnMessage', (msg) => {
-      handleMessage(msg);
-    });
-
-    socket.on('returnConnectedUsers', (users) => {
-      setActiveUsers([...users]);
-    });
-  }, []);
 
   return (
     <div>
