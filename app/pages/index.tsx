@@ -76,19 +76,17 @@ const Home: React.FC<Props> = ({ socket }) => {
       password: passwordInputValue,
     };
     if (createUserState) {
-      fetch(`http://localhost:3000/api/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(user),
-      })
+      postFetch('http://localhost:3000/api/users', user)
         .then(async (response) => {
           const data = await response.json();
           console.log(data);
         })
         .catch((e) => {
           console.error(e);
+        })
+        .finally(() => {
+          setCreateUserState(false);
+          login();
         });
     }
   };
