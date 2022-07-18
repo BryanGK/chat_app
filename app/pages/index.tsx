@@ -97,28 +97,15 @@ const Home: React.FC<Props> = ({ socket }) => {
       username: userInputValue,
       password: passwordInputValue,
     };
-    fetch(`http://localhost:3000/api/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(user),
-    })
-      .then(async (response) => {
-        if (response.status !== 200) {
-          console.log(response.statusText);
-          return response.statusText;
-        }
-        const data = await response.json();
-        setUser({
-          ...data,
-        });
-        socket.emit('connectedUser', { ...data });
+    postFetch('http://localhost:3000/api/login', user)
+      .then((res) => {
+        setUser({ ...res });
+        socket.emit('connectedUser', { ...res });
         toggleModal();
         fetchUser();
       })
       .catch((e) => {
-        console.error(e);
+        console.log(e);
       });
   };
 
@@ -130,31 +117,6 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   const toggleCreateUserState = () => setCreateUserState(!createUserState);
   const toggleModal = () => setModalState(!modalState);
-
-  const handleMessage = (msg: Message) => {
-    setMessages((prevState) => [
-      ...prevState,
-      {
-        message: msg.message,
-        author: msg.author,
-        id: prevState.length + 1,
-      },
-    ]);
-  };
-
-  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessageInputValue(e.target.value);
-  };
-
-  const handleUserInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserInputValue(e.target.value);
-  };
-
-  const handlePasswordInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setPasswordInputValue(e.target.value);
-  };
 
   const fetchMessages = () => {
     getFetch('http://localhost:3000/api/messages')
@@ -180,6 +142,31 @@ const Home: React.FC<Props> = ({ socket }) => {
         setModalState(true);
         console.error('Logged in user not found:\n', e);
       });
+  };
+
+  const handleMessage = (msg: Message) => {
+    setMessages((prevState) => [
+      ...prevState,
+      {
+        message: msg.message,
+        author: msg.author,
+        id: prevState.length + 1,
+      },
+    ]);
+  };
+
+  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessageInputValue(e.target.value);
+  };
+
+  const handleUserInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserInputValue(e.target.value);
+  };
+
+  const handlePasswordInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setPasswordInputValue(e.target.value);
   };
 
   return (

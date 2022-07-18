@@ -26,7 +26,10 @@ export const postFetch = (url: string, body: Message | User) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
-  }).catch((e) => {
-    throw new Error(e);
+  }).then(async (res) => {
+    if (res.status !== 200) {
+      throw new Error(res.statusText);
+    }
+    return await res.json();
   });
 };
