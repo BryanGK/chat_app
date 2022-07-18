@@ -35,13 +35,29 @@ const Home: React.FC<Props> = ({ socket }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInputValue, setMessageInputValue] = useState<string>('');
 
-  const postMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
+  useEffect(() => {
+    fetchUser();
+
+    socket.on('returnMessage', (msg) => {
+      handleMessage(msg);
+    });
+
+    socket.on('returnConnectedUsers', (users) => {
+      setActiveUsers([...users]);
+    });
+  }, []);
+
+  const postMessage = (
+    e:
+      | React.MouseEvent<HTMLButtonElement>
+      | React.KeyboardEvent<HTMLButtonElement>
+  ) => {
     if (!user) return;
     e.preventDefault();
     const messageData: Message = {
       message: messageInputValue,
       author: user.username,
-      id: undefined,
+      id: null,
     };
     postFetch('http://localhost:3000/api/messages', messageData)
       .then(() => {
@@ -55,7 +71,7 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   const createUser = () => {
     const user: User = {
-      id: undefined,
+      id: null,
       username: userInputValue,
       password: passwordInputValue,
     };
@@ -79,7 +95,7 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   const login = () => {
     const user: User = {
-      id: undefined,
+      id: null,
       username: userInputValue,
       password: passwordInputValue,
     };
@@ -167,18 +183,6 @@ const Home: React.FC<Props> = ({ socket }) => {
         console.error('Logged in user not found:\n', e);
       });
   };
-
-  useEffect(() => {
-    fetchUser();
-
-    socket.on('returnMessage', (msg) => {
-      handleMessage(msg);
-    });
-
-    socket.on('returnConnectedUsers', (users) => {
-      setActiveUsers([...users]);
-    });
-  }, []);
 
   return (
     <div>
