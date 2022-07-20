@@ -1,17 +1,20 @@
 import { MessageEntity } from '../database/entity/MessageEntity';
 
 export interface User {
-  id: number | null | undefined;
+  id: string | null;
   username: string;
   password: string;
   authToken?: string;
   socketId?: string;
+  createdAt?: string;
 }
 
 export interface Message {
-  id: number | null | undefined;
+  id: string | null;
   message: string;
   author: string;
+  authorId: string | null;
+  createdAt?: string;
 }
 
 export interface ServerToClientEvents {
