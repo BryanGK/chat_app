@@ -63,7 +63,7 @@ apiRouter.post('/users', async (req: Request, res: Response) => {
     const user = await postUser(req.body);
     res.send(user);
   } catch (error) {
-    res.sendStatus(500).send(`Error saving user: ${error}`);
+    res.status(403).send(`Error saving user: ${error}`);
     console.error(`Error saving user: ${error}`);
   }
 });

@@ -34,18 +34,29 @@ export const postMessage = async (input: MessageEntity) => {
 };
 
 export const postUser = async (input: UserEntity) => {
-  const user = new UserEntity();
-  user.username = input.username;
-  user.password = await bcrypt.hash(input.password, 10);
-  return await AppDataSource.manager.save(user);
+  const isAlreadyRegistered = await findUser(input);
+  try {
+    if (isAlreadyRegistered === null) {
+      const user = new UserEntity();
+      user.username = input.username;
+      user.password = await bcrypt.hash(input.password, 10);
+      return await AppDataSource.manager.save(user);
+    }
+  } catch {
+    throw new Error('Username already exists');
+  }
 };
 
 export const login = async (input: User) => {
-  const usersRepository = AppDataSource.getRepository(UserEntity);
-  const user = await usersRepository.findOneBy({
-    username: input.username,
-  });
+  const user = await findUser(input);
   if (!user) throw new Error('User not found');
   const authenticatedUser = await authenticateUser(input, user);
   return authenticatedUser;
+};
+
+export const findUser = async (input: User) => {
+  const usersRepository = AppDataSource.getRepository(UserEntity);
+  return await usersRepository.findOneBy({
+    username: input.username,
+  });
 };

@@ -10,6 +10,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Alert,
 } from 'reactstrap';
 
 interface Props {
@@ -22,12 +23,14 @@ interface Props {
   login: () => void;
   logout: () => void;
   createUserState: boolean;
+  isExistingUser: boolean;
 }
 
 const LoginModal = ({
   toggleModal,
   toggleCreateUserState,
   modalState,
+  isExistingUser,
   handleUserInputChange,
   handlePasswordInputChange,
   createUser,
@@ -58,6 +61,9 @@ const LoginModal = ({
           </Button>
         </ModalHeader>
         <ModalBody>
+          <Alert color="warning" isOpen={isExistingUser}>
+            User already exists
+          </Alert>
           <Form inline>
             <FormGroup floating>
               <Input

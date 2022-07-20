@@ -18,13 +18,6 @@ interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
-// TO-DO:
-
-// assign colours to user messages
-// better look and feel to UI
-// Containerize?
-// Deploy
-
 const Home: React.FC<Props> = ({ socket }) => {
   const [user, setUser] = useState<User>();
   const [activeUsers, setActiveUsers] = useState<User[]>([]);
@@ -34,6 +27,7 @@ const Home: React.FC<Props> = ({ socket }) => {
   const [createUserState, setCreateUserState] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInputValue, setMessageInputValue] = useState<string>('');
+  const [isExistingUser, setIsExistingUser] = useState(false);
 
   useEffect(() => {
     fetchUser();
@@ -77,16 +71,13 @@ const Home: React.FC<Props> = ({ socket }) => {
     };
     if (createUserState) {
       postFetch('http://localhost:3000/api/users', user)
-        .then(async (response) => {
-          const data = await response.json();
-          console.log(data);
-        })
-        .catch((e) => {
-          console.error(e);
-        })
-        .finally(() => {
+        .then(() => {
           setCreateUserState(false);
           login();
+        })
+        .catch((e) => {
+          setIsExistingUser(true);
+          console.error('create user error: ', e);
         });
     }
   };
@@ -105,7 +96,7 @@ const Home: React.FC<Props> = ({ socket }) => {
         fetchUser();
       })
       .catch((e) => {
-        console.log(e);
+        console.error(e);
       });
   };
 
@@ -201,6 +192,7 @@ const Home: React.FC<Props> = ({ socket }) => {
           </div>
           <div>
             <LoginModal
+              isExistingUser={isExistingUser}
               toggleCreateUserState={toggleCreateUserState}
               modalState={modalState}
               toggleModal={toggleModal}
