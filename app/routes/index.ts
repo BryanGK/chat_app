@@ -70,7 +70,7 @@ apiRouter.post('/users', async (req: Request, res: Response) => {
 
 apiRouter.get('/users/:id', async (req: Request, res: Response) => {
   try {
-    const user = await getUserById(parseInt(req.params.id));
+    const user = await getUserById(req.params.id);
     res.send(user);
   } catch (error) {
     res.sendStatus(500).send(`Error saving user: ${error}`);

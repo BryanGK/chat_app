@@ -19,7 +19,7 @@ export const getData = async (entity: 'User' | 'Messages', userReq?: User) => {
   }
 };
 
-export const getUserById = async (id: number) => {
+export const getUserById = async (id: string) => {
   const usersRepository = AppDataSource.getRepository(UserEntity);
   return await usersRepository.findOneBy({
     id: id,
@@ -30,6 +30,7 @@ export const postMessage = async (input: MessageEntity) => {
   const message = new MessageEntity();
   message.message = input.message;
   message.author = input.author;
+  message.authorId = input.authorId;
   return await AppDataSource.manager.save(message);
 };
 

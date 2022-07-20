@@ -13,6 +13,7 @@ import {
 import { Socket } from 'socket.io-client';
 import LoginModal from '../components/LoginModal';
 import { getFetch, postFetch } from '../utils/fetch';
+import { MessageEntity } from '../database/entity/MessageEntity';
 
 interface Props {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -51,11 +52,13 @@ const Home: React.FC<Props> = ({ socket }) => {
     const messageData: Message = {
       message: messageInputValue,
       author: user.username,
+      authorId: user.id,
       id: null,
     };
+    console.log(messageData);
     postFetch('http://localhost:3000/api/messages', messageData)
       .then(() => {
-        socket.emit('savedMessage', messageData);
+        socket.emit('savedMessage', messageData as MessageEntity);
         setMessageInputValue('');
       })
       .catch((e) => {
@@ -65,9 +68,9 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   const createUser = () => {
     const user: User = {
-      id: null,
       username: userInputValue,
       password: passwordInputValue,
+      id: null,
     };
     if (createUserState) {
       postFetch('http://localhost:3000/api/users', user)
@@ -84,9 +87,9 @@ const Home: React.FC<Props> = ({ socket }) => {
 
   const login = () => {
     const user: User = {
-      id: null,
       username: userInputValue,
       password: passwordInputValue,
+      id: null,
     };
     postFetch('http://localhost:3000/api/login', user)
       .then((res) => {
@@ -141,7 +144,8 @@ const Home: React.FC<Props> = ({ socket }) => {
       {
         message: msg.message,
         author: msg.author,
-        id: prevState.length + 1,
+        authorId: msg.authorId,
+        id: (prevState.length + 1).toString(),
       },
     ]);
   };
